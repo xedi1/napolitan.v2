@@ -7,6 +7,9 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { MenuModule } from './modules/menu/menu.module';
+import { TablesModule } from './modules/tables/tables.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { KitchenModule } from './modules/kitchen/kitchen.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
@@ -32,6 +35,9 @@ import { throttlerConfig } from './config/throttler.config';
     AuthModule,
     UsersModule,
     RolesModule,
+    CategoriesModule,
+    MenuModule,
+    TablesModule,
     OrdersModule,
     KitchenModule,
     InventoryModule,

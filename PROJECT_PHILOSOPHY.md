@@ -30,7 +30,59 @@
 ## فازهای پروژه
 - [x] فاز ۰: راه‌اندازی زیرساخت پروژه (✅ انجام شد)
 - [x] فاز ۱: Authentication & Users Module (✅ انجام شد)
-- [ ] فاز ۲: ...
+- [x] فاز ۲: Menu & Table Management (✅ انجام شد)
+- [ ] فاز ۳: ...
+
+---
+
+# Phase 2: Menu & Table Management
+
+## Implemented Features
+
+### Categories Module (`/api/v1/categories`)
+| Method | Endpoint | Description | Auth Required | Roles |
+|--------|----------|-------------|---------------|-------|
+| GET | /categories | List all categories | Yes | ADMIN, MANAGER, STAFF |
+| GET | /categories/:id | Get category by ID | Yes | ADMIN, MANAGER, STAFF |
+| POST | /categories | Create category | Yes | ADMIN, MANAGER |
+| PATCH | /categories/:id | Update category | Yes | ADMIN, MANAGER |
+| DELETE | /categories/:id | Delete category (soft) | Yes | ADMIN |
+
+### Menu Module (`/api/v1/menu`)
+| Method | Endpoint | Description | Auth Required | Roles |
+|--------|----------|-------------|---------------|-------|
+| GET | /menu | List all menu items | Yes | All roles |
+| GET | /menu/:id | Get menu item by ID | Yes | All roles |
+| POST | /menu | Create menu item | Yes | ADMIN, MANAGER |
+| PATCH | /menu/:id | Update menu item | Yes | ADMIN, MANAGER |
+| DELETE | /menu/:id | Delete menu item (soft) | Yes | ADMIN |
+
+### Tables Module (`/api/v1/tables`)
+| Method | Endpoint | Description | Auth Required | Roles |
+|--------|----------|-------------|---------------|-------|
+| GET | /tables | List all tables | Yes | ADMIN, MANAGER, STAFF |
+| GET | /tables/:id | Get table by ID | Yes | ADMIN, MANAGER, STAFF |
+| POST | /tables | Create table | Yes | ADMIN, MANAGER |
+| PATCH | /tables/:id | Update table | Yes | ADMIN, MANAGER |
+| PATCH | /tables/:id/status | Update table status | Yes | ADMIN, MANAGER, STAFF |
+| DELETE | /tables/:id | Delete table | Yes | ADMIN |
+
+### Data Models
+
+**Category**
+- id, name, description, displayOrder, isActive
+
+**MenuItem**
+- id, name, description, price, imageUrl, isAvailable, isActive
+- Belongs to Category
+
+**Table**
+- id, tableNumber, capacity, status
+- Status: EMPTY, RESERVED, OCCUPIED
+
+### Acceptance Criteria
+- ✅ Menu item availability change reflects immediately in API response
+- ✅ Table status can be changed via API
 
 ---
 
