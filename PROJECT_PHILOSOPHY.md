@@ -35,8 +35,49 @@
 - [x] فاز ۴: Cashier & Custom Receipt System (✅ انجام شد)
 - [x] فاز ۵: Inventory & Employee Management (✅ انجام شد)
 - [x] فاز ۶: Reports & Analytics (✅ انجام شد)
-- [x] فاز ۷: Notifications & Full Event-Driven Architecture (✅ انجام شد)
-- [ ] فاز ۸: ...
+- [x] فاز ۷: Notifications & Event-Driven Architecture (✅ انجام شد)
+- [x] فاز ۸: Automation & Integrations (✅ انجام شد)
+- [ ] فاز ۹: ...
+
+---
+
+# Phase 8: Automation & Integrations
+
+## API Key Management
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /integrations/api-keys | Create API Key |
+| GET | /integrations/api-keys | List all keys |
+| DELETE | /integrations/api-keys/:id | Revoke key |
+
+## API Key Permissions
+- READ: 100 requests/minute
+- WRITE: 50 requests/minute
+- ADMIN: 200 requests/minute
+
+## Webhook Management
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /integrations/webhooks | Create Webhook |
+| GET | /integrations/webhooks | List webhooks |
+| GET | /integrations/webhooks/:id | Get webhook |
+| PATCH | /integrations/webhooks/:id | Update webhook |
+| DELETE | /integrations/webhooks/:id | Delete webhook |
+| GET | /integrations/webhooks/:id/logs | Get delivery logs |
+
+## Webhook Security
+- HMAC-SHA256 Signature: `t=timestamp,v1=signature`
+- Signature verification with timestamp tolerance (5 min)
+- Retry with Exponential Backoff: 1s, 5s, 30s
+
+## Rate Limiting
+- Per API Key rate limiting
+- Configurable limits per permission level
+- Rate limit headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`
+
+## API Versioning
+- All endpoints under `/api/v1/*`
+- OpenAPI/Swagger documentation auto-generated
 
 ---
 

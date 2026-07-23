@@ -20,6 +20,7 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { GatewayModule } from './modules/gateway/gateway.module';
 import { throttlerConfig } from './config/throttler.config';
 
@@ -59,6 +60,7 @@ import { throttlerConfig } from './config/throttler.config';
     ReportsModule,
     NotificationsModule,
     AuditLogModule,
+    IntegrationsModule,
     GatewayModule,
   ],
   providers: [PrismaService],

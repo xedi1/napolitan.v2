@@ -333,3 +333,91 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+// API Key permission level
+enum ApiKeyPermission {
+  READ
+  WRITE
+  ADMIN
+}
+
+// API Key model
+model ApiKey {
+  id          String          @id @default(uuid())
+  name        String          // Friendly name for the key
+  key         String          @unique // The actual API key (hashed stored)
+  keyPrefix   String          // First 8 chars for identification
+  permissions ApiKeyPermission @default(READ)
+  isActive    Boolean         @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdById String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  webhooks    Webhook[]
+
+  @@index([key])
+  @@map("api_keys")
+}
+
+// Webhook model
+model Webhook {
+  id          String   @id @default(uuid())
+  name        String   // Friendly name
+  url         String   // Destination URL
+  secret      String   // Secret for HMAC signing
+  events      String[] // Events to subscribe to
+  isActive    Boolean  @default(true)
+  apiKeyId    String
+  apiKey      ApiKey   @relation(fields: [apiKeyId], references: [id])
+  headers     Json?    // Custom headers to send
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  logs        WebhookLog[]
+
+  @@index([apiKeyId])
+  @@map("webhooks")
+}
+
+// Webhook delivery status
+enum WebhookStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+// Webhook log model
+model WebhookLog {
+  id           String        @id @default(uuid())
+  webhookId    String
+  webhook      Webhook       @relation(fields: [webhookId], references: [id])
+  event        String        // Event that triggered this delivery
+  payload      Json          // What was sent
+  responseCode Int?          // HTTP response code
+  responseBody String?       // Response body (truncated)
+  status       WebhookStatus @default(PENDING)
+  attempt      Int           @default(1)
+  error        String?       // Error message if failed
+  duration     Int?          // Duration in ms
+  createdAt    DateTime      @default(now())
+
+  @@index([webhookId])
+  @@index([event])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_logs")
+}
+
+// Rate limit tracking
+model RateLimit {
+  id        String   @id @default(uuid())
+  apiKeyId  String
+  windowStart DateTime
+  requestCount Int   @default(0)
+
+  @@unique([apiKeyId, windowStart])
+  @@map("rate_limits")
+}

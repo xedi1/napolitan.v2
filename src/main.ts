@@ -56,6 +56,7 @@ async function bootstrap() {
     .addTag('Reports', 'Reports and analytics endpoints')
     .addTag('Notifications', 'Notification endpoints')
     .addTag('Audit Logs', 'System audit log endpoints')
+    .addTag('Integrations', 'API Key and Webhook management')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
