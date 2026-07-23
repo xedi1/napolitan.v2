@@ -38,7 +38,54 @@
 - [x] فاز ۷: Notifications & Event-Driven Architecture (✅ انجام شد)
 - [x] فاز ۸: Automation & Integrations (✅ انجام شد)
 - [x] فاز ۹: Management Dashboard (✅ انجام شد)
-- [ ] فاز ۱۰: ...
+- [x] فاز ۱۰: Future-Ready Extensions (✅ انجام شد)
+- [ ] 🎉 پروژه کامل شد!
+
+---
+
+# Phase 10: Future-Ready Extensions
+
+## API Contracts Documentation
+
+| Contract | Description |
+|----------|-------------|
+| [QR Menu](./docs/contracts/01-qr-menu-contract.md) | Customer-facing menu (Public API) |
+| [Delivery App](./docs/contracts/02-delivery-app-contract.md) | Delivery ordering system |
+| [Telegram Bot](./docs/contracts/03-telegram-bot-contract.md) | Telegram bot integration |
+| [Mobile App](./docs/contracts/04-mobile-app-contract.md) | iOS/Android native app |
+
+## Key Principle
+
+> **هسته سیستم تغییر نمی‌کند. تمام extension‌ها از API‌های موجود استفاده می‌کنند.**
+
+## Contract Summary
+
+### QR Menu
+- **Endpoints**: GET /menu, GET /categories
+- **Auth**: None (Public)
+- **Use**: Scan table QR → View menu → No ordering
+
+### Delivery App
+- **Endpoints**: POST /orders (type: delivery)
+- **Auth**: Customer JWT
+- **Use**: Browse → Order → Pay → Track
+
+### Telegram Bot
+- **Endpoints**: All via API Key
+- **Auth**: API Key (telegram-bot)
+- **Use**: Bot commands → API calls → Notifications
+
+### Mobile App
+- **Endpoints**: All
+- **Auth**: Customer JWT + Push Token
+- **Use**: Full native experience
+
+## Next Steps for Extensions
+
+1. **QR Menu**: Create public menu page
+2. **Delivery App**: Build web/app for delivery
+3. **Telegram Bot**: Create bot server
+4. **Mobile App**: Native iOS/Android development
 
 ---
 
