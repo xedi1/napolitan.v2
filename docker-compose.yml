@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  backend:
+  api:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: napolitan-backend
+    container_name: napolitan-api
     ports:
       - '${APP_PORT:-3000}:3000'
     environment:
@@ -60,6 +60,29 @@ services:
     networks:
       - napolitan-network
     restart: unless-stopped
+
+  backup:
+    image: postgres:16-alpine
+    container_name: napolitan-backup
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-napolitan}
+      BACKUP_DIR: /backups
+      RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+    entrypoint: ['sh', '/backup.sh']
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - napolitan-network
+    restart: 'no'
+    # Note: Run manually or via external scheduler (e.g., cron, Kubernetes CronJob)
+    # Example: docker-compose run --rm backup
 
 networks:
   napolitan-network:
