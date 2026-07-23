@@ -8,5 +8,6 @@ dev_command = "npm run dev"
 
 # Environment variables (override in dashboard or with --var)
 [vars]
-VITE_API_URL = "https://api.napolitan.com"
-VITE_WS_URL = "wss://api.napolitan.com"
+# TODO: Update these to your actual API domain after backend deployment
+VITE_API_URL = "https://api.yourdomain.com"
+VITE_WS_URL = "wss://api.yourdomain.com"
