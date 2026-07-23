@@ -33,7 +33,52 @@
 - [x] فاز ۲: Menu & Table Management (✅ انجام شد)
 - [x] فاز ۳: Real-Time Order Management & Kitchen (✅ انجام شد)
 - [x] فاز ۴: Cashier & Custom Receipt System (✅ انجام شد)
-- [ ] فاز ۵: ...
+- [x] فاز ۵: Inventory & Employee Management (✅ انجام شد)
+- [ ] فاز ۶: ...
+
+---
+
+# Phase 5: Inventory & Employee Management
+
+## Inventory Models
+- **InventoryItem:** name, unit (KG/GRAM/LITER/ML/PIECE/CUP/SPOON), currentStock, alertLevel, isActive
+- **Recipe:** Links menu items to ingredients
+- **RecipeItem:** inventoryItemId, quantity consumed per order
+
+## Employee Model
+- **Fields:** firstName, lastName, email, phone, role, position, hourlyRate, isActive, hireDate, shiftStatus
+- **ShiftStatus:** OFF, ON_DUTY, BREAK
+
+## Inventory Module (`/api/v1/inventory`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /inventory | List all items | ADMIN, MANAGER |
+| GET | /inventory/low-stock | Low stock items | ADMIN, MANAGER |
+| GET | /inventory/:id | Get by ID | ADMIN, MANAGER |
+| POST | /inventory | Create item | ADMIN, MANAGER |
+| PATCH | /inventory/:id | Update item | ADMIN, MANAGER |
+| POST | /inventory/:id/add-stock | Add stock | ADMIN, MANAGER |
+| GET | /inventory/recipes | List recipes | ADMIN, MANAGER |
+| POST | /inventory/recipes | Create recipe | ADMIN, MANAGER |
+| PATCH | /inventory/recipes/:id | Update recipe | ADMIN, MANAGER |
+
+## Employee Module (`/api/v1/employees`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /employees | List all | ADMIN, MANAGER |
+| GET | /employees/on-duty | On duty only | ADMIN, MANAGER, STAFF |
+| GET | /employees/:id | Get by ID | ADMIN, MANAGER |
+| POST | /employees | Create | ADMIN |
+| PATCH | /employees/:id | Update | ADMIN, MANAGER |
+| PATCH | /employees/:id/shift | Update shift | ADMIN, MANAGER |
+
+## Event-Driven Inventory
+- `order.created` → Automatic inventory consumption based on Recipe
+- `inventory.low_stock` → Emitted when stock falls below alert level
+
+## Acceptance Criteria
+- ✅ Order creation automatically deducts inventory based on Recipe
+- ✅ Low stock triggers inventory.low_stock event
 
 ---
 

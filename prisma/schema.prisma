@@ -64,6 +64,7 @@ model MenuItem {
   category    Category    @relation(fields: [categoryId], references: [id])
 
   orderItems  OrderItem[]
+  recipe      Recipe?
 
   @@map("menu_items")
 }
@@ -155,4 +156,83 @@ model Receipt {
   qrCodeData      String?
 
   @@map("receipts")
+}
+
+// Measurement unit enum
+enum MeasurementUnit {
+  KG
+  GRAM
+  LITER
+  ML
+  PIECE
+  CUP
+  SPOON
+}
+
+// Inventory Item model
+model InventoryItem {
+  id            String           @id @default(uuid())
+  name          String
+  unit          MeasurementUnit
+  currentStock  Decimal          @db.Decimal(10, 2)
+  alertLevel    Decimal          @db.Decimal(10, 2)
+  isActive      Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  recipeItems   RecipeItem[]
+
+  @@map("inventory_items")
+}
+
+// Recipe model (links menu items to inventory items)
+model Recipe {
+  id          String       @id @default(uuid())
+  menuItemId  String       @unique
+  menuItem    MenuItem     @relation(fields: [menuItemId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  items       RecipeItem[]
+
+  @@map("recipes")
+}
+
+// Recipe Item model (ingredient with quantity)
+model RecipeItem {
+  id              String        @id @default(uuid())
+  recipeId        String
+  recipe          Recipe        @relation(fields: [recipeId], references: [id])
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  quantity        Decimal       @db.Decimal(10, 2) // Amount consumed per order
+  createdAt       DateTime      @default(now())
+
+  @@map("recipe_items")
+}
+
+// Shift status enum
+enum ShiftStatus {
+  OFF
+  ON_DUTY
+  BREAK
+}
+
+// Employee model
+model Employee {
+  id            String      @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String      @unique
+  phone         String?
+  role          UserRole
+  position      String?     // e.g., "Head Chef", "Waiter", "Cashier"
+  hourlyRate    Decimal?    @db.Decimal(10, 2)
+  isActive      Boolean     @default(true)
+  hireDate      DateTime    @default(now())
+  shiftStatus   ShiftStatus @default(OFF)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("employees")
 }

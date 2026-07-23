@@ -14,8 +14,9 @@ import { TablesModule } from './modules/tables/tables.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { KitchenModule } from './modules/kitchen/kitchen.module';
 import { ReceiptsModule } from './modules/receipts/receipts.module';
-import { GatewayModule } from './modules/gateway/gateway.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { GatewayModule } from './modules/gateway/gateway.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { throttlerConfig } from './config/throttler.config';
@@ -45,8 +46,9 @@ import { throttlerConfig } from './config/throttler.config';
     OrdersModule,
     KitchenModule,
     ReceiptsModule,
-    GatewayModule,
     InventoryModule,
+    EmployeesModule,
+    GatewayModule,
     NotificationsModule,
     ReportingModule,
   ],

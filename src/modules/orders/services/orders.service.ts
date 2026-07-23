@@ -85,7 +85,7 @@ export class OrdersService {
         table: { select: { tableNumber: true } },
         createdBy: { select: { firstName: true, lastName: true } },
         items: {
-          include: { menuItem: { select: { name: true } } },
+          include: { menuItem: { select: { id: true, name: true } } },
         },
       },
     });
@@ -96,13 +96,14 @@ export class OrdersService {
       data: { status: 'OCCUPIED' },
     });
 
-    // Emit event for WebSocket
+    // Emit event for WebSocket and inventory consumption
     const event: OrderCreatedEvent = {
       orderId: order.id,
       tableNumber: order.table.tableNumber,
       items: order.items.map((item) => ({
         name: item.menuItem.name,
         quantity: item.quantity,
+        menuItemId: item.menuItemId,
       })),
       createdBy: `${order.createdBy.firstName || ''} ${order.createdBy.lastName || ''}`.trim(),
       createdAt: order.createdAt,

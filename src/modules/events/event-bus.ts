@@ -8,6 +8,7 @@ export interface OrderCreatedEvent {
   items: Array<{
     name: string;
     quantity: number;
+    menuItemId: string;
   }>;
   createdBy: string;
   createdAt: Date;
@@ -33,6 +34,11 @@ export interface PaymentSuccessEvent {
   receiptUrl: string;
 }
 
+export interface InventoryLowStockEvent {
+  items: string[];
+  timestamp: Date;
+}
+
 @Injectable()
 export class EventBus {
   private readonly logger = new Logger(EventBus.name);
@@ -56,5 +62,12 @@ export class EventBus {
       `Emitting payment.success event for receipt ${event.receiptNumber} - $${event.totalAmount}`,
     );
     this.eventEmitter.emit('payment.success', event);
+  }
+
+  emitInventoryLowStock(event: InventoryLowStockEvent): void {
+    this.logger.warn(
+      `Emitting inventory.low_stock event for items: ${event.items.join(', ')}`,
+    );
+    this.eventEmitter.emit('inventory.low_stock', event);
   }
 }
