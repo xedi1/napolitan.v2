@@ -39,6 +39,11 @@ export interface InventoryLowStockEvent {
   timestamp: Date;
 }
 
+export interface DashboardUpdateEvent {
+  type: string;
+  data: any;
+}
+
 @Injectable()
 export class EventBus {
   private readonly logger = new Logger(EventBus.name);
@@ -69,5 +74,10 @@ export class EventBus {
       `Emitting inventory.low_stock event for items: ${event.items.join(', ')}`,
     );
     this.eventEmitter.emit('inventory.low_stock', event);
+  }
+
+  emitDashboardUpdate(event: DashboardUpdateEvent): void {
+    this.logger.debug(`Emitting dashboard.update event`);
+    this.eventEmitter.emit('dashboard.update', event);
   }
 }

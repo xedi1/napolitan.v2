@@ -16,9 +16,9 @@ import { KitchenModule } from './modules/kitchen/kitchen.module';
 import { ReceiptsModule } from './modules/receipts/receipts.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { EmployeesModule } from './modules/employees/employees.module';
+import { ReportsModule } from './modules/reports/reports.module';
 import { GatewayModule } from './modules/gateway/gateway.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { ReportingModule } from './modules/reporting/reporting.module';
 import { throttlerConfig } from './config/throttler.config';
 
 @Module({
@@ -48,9 +48,9 @@ import { throttlerConfig } from './config/throttler.config';
     ReceiptsModule,
     InventoryModule,
     EmployeesModule,
+    ReportsModule,
     GatewayModule,
     NotificationsModule,
-    ReportingModule,
   ],
   providers: [PrismaService],
 })

@@ -34,7 +34,44 @@
 - [x] فاز ۳: Real-Time Order Management & Kitchen (✅ انجام شد)
 - [x] فاز ۴: Cashier & Custom Receipt System (✅ انجام شد)
 - [x] فاز ۵: Inventory & Employee Management (✅ انجام شد)
-- [ ] فاز ۶: ...
+- [x] فاز ۶: Reports & Analytics (✅ انجام شد)
+- [ ] فاز ۷: ...
+
+---
+
+# Phase 6: Reports & Analytics
+
+## Reports Module (`/api/v1/reports`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /reports/sales | Sales report | ADMIN, MANAGER |
+| GET | /reports/top-items | Top/bottom selling items | ADMIN, MANAGER |
+| GET | /reports/peak-hours | Peak hours analysis | ADMIN, MANAGER |
+
+## Analytics Module (`/api/v1/analytics`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /analytics/dashboard | Real-time dashboard data | ADMIN, MANAGER |
+
+## Dashboard Data
+- todayRevenue, todayOrders, avgOrderValue
+- activeOrders, tablesOccupied, occupancyRate
+- lowStockItems count
+- Revenue comparison: vsYesterday, vsLastWeek
+- recentOrders, topSellingItems
+
+## Event-Driven Updates
+- `order.created` → Recalculates dashboard
+- `payment.success` → Recalculates dashboard
+- `dashboard.update` → Broadcasts to dashboard room
+
+## Analytics Cache Models
+- **DailyAnalytics:** date, totalOrders, totalRevenue, totalItemsSold, avgOrderValue
+- **MenuItemSales:** menuItemId, date, quantitySold, revenue
+
+## Acceptance Criteria
+- ✅ Sales report works with date range filters
+- ✅ Dashboard updates in real-time without refresh
 
 ---
 
