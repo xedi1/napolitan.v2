@@ -29,8 +29,37 @@
 
 ## فازهای پروژه
 - [x] فاز ۰: راه‌اندازی زیرساخت پروژه (✅ انجام شد)
-- [ ] فاز ۱: ...
+- [x] فاز ۱: Authentication & Users Module (✅ انجام شد)
 - [ ] فاز ۲: ...
+
+---
+
+# Phase 1: Authentication & Users Module
+
+## Implemented Features
+
+### Auth Module (`/api/v1/auth`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|----------------|
+| POST | /auth/register | Register new user | No |
+| POST | /auth/login | Login with credentials | No |
+| POST | /auth/refresh | Refresh access token | No |
+| POST | /auth/logout | Logout current user | Yes |
+
+### Users Module (`/api/v1/users`)
+| Method | Endpoint | Description | Auth Required | Roles |
+|--------|----------|-------------|---------------|-------|
+| POST | /users | Create user | Yes | ADMIN |
+| GET | /users | List all users | Yes | ADMIN, MANAGER |
+| GET | /users/:id | Get user by ID | Yes | ADMIN, MANAGER |
+| PUT | /users/:id | Update user | Yes | ADMIN |
+| DELETE | /users/:id | Delete user (soft) | Yes | ADMIN |
+
+### User Roles
+- `ADMIN` - Full system access
+- `MANAGER` - Manage staff and view reports
+- `STAFF` - Regular staff member
+- `KITCHEN` - Kitchen staff access
 
 ---
 

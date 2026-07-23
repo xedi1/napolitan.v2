@@ -42,6 +42,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('Health', 'System health check endpoints')
+    .addTag('Auth', 'Authentication endpoints')
+    .addTag('Users', 'User management endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

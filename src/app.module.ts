@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { validateEnv } from './config/configuration';
+import { PrismaService } from './common/services/prisma.service';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -33,5 +34,6 @@ import { ReportingModule } from './modules/reporting/reporting.module';
     NotificationsModule,
     ReportingModule,
   ],
+  providers: [PrismaService],
 })
 export class AppModule {}
