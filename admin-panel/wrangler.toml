@@ -1,0 +1,12 @@
+name = "napolitan-admin"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "./dist"
+
+# Build settings
+build_command = "npm run build"
+dev_command = "npm run dev"
+
+# Environment variables (override in dashboard or with --var)
+[vars]
+VITE_API_URL = "https://api.napolitan.com"
+VITE_WS_URL = "wss://api.napolitan.com"
