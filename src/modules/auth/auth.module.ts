@@ -5,10 +5,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
 import { TokenBlacklistService } from './services/token-blacklist.service';
+import { RefreshTokenService } from './services/refresh-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
-import { RedisService } from '../../common/services/redis.service';
 
 @Module({
   imports: [
@@ -20,8 +20,8 @@ import { RedisService } from '../../common/services/redis.service';
   ],
   controllers: [AuthController],
   providers: [
-    RedisService,
     TokenBlacklistService,
+    RefreshTokenService,
     AuthService,
     JwtStrategy,
     {
@@ -33,6 +33,6 @@ import { RedisService } from '../../common/services/redis.service';
       useClass: RolesGuard,
     },
   ],
-  exports: [AuthService, TokenBlacklistService],
+  exports: [AuthService, TokenBlacklistService, RefreshTokenService],
 })
 export class AuthModule {}

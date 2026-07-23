@@ -9,47 +9,36 @@ export class ReceiptNumberService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Generate next receipt number - use this when called OUTSIDE a transaction.
-   * WARNING: If you need atomic receipt creation, use generateNextReceiptNumberInTransaction instead.
-   */
-  async generateNextReceiptNumber(): Promise<string> {
-    return this.generateNextReceiptNumberInternal(this.prisma);
-  }
-
-  /**
-   * Generate next receipt number within an existing transaction.
-   * Use this when you need atomic receipt creation to prevent race conditions.
-   * The FOR UPDATE lock is held until the transaction commits.
+   * Generate next receipt number using atomic UPDATE...RETURNING.
+   * This is the preferred method - use inside a transaction with other DB operations.
    */
   async generateNextReceiptNumberInTransaction(tx: Prisma.TransactionClient): Promise<string> {
-    return this.generateNextReceiptNumberInternal(tx);
-  }
-
-  private async generateNextReceiptNumberInternal(tx: Prisma.TransactionClient): Promise<string> {
     const year = new Date().getFullYear();
     const prefix = `NP-${year}-`;
 
-    // Get the latest receipt number for this year with row-level locking
-    const latestReceipt = await tx.$queryRaw<{ receipt_number: string }[]>`
-      SELECT receipt_number 
-      FROM receipts 
-      WHERE receipt_number LIKE ${prefix + '%'}
-      ORDER BY id DESC 
-      LIMIT 1 
-      FOR UPDATE
+    // Use atomic UPDATE...RETURNING to get next sequence number
+    // This prevents race conditions by using row-level locking
+    const result = await tx.$queryRaw<{ sequence: bigint; year: number }[]>`
+      INSERT INTO receipt_sequences (year, sequence)
+      VALUES (${year}, 1)
+      ON CONFLICT (year) DO UPDATE
+      SET sequence = receipt_sequences.sequence + 1, updatedat = NOW()
+      RETURNING sequence, year
     `;
 
-    let nextNumber = 1;
+    const sequence = result[0].sequence;
+    const receiptNumber = prefix + sequence.toString().padStart(8, '0');
 
-    if (latestReceipt.length > 0) {
-      const lastNumber = latestReceipt[0].receipt_number;
-      const numberPart = lastNumber.replace(prefix, '');
-      nextNumber = parseInt(numberPart, 10) + 1;
-    }
+    this.logger.debug(`Generated receipt number: ${receiptNumber}`);
+    return receiptNumber;
+  }
 
-    const result = prefix + nextNumber.toString().padStart(8, '0');
-    this.logger.debug(`Generated receipt number: ${result}`);
-    return result;
+  /**
+   * Generate next receipt number - use this when called OUTSIDE a transaction.
+   * WARNING: For atomic receipt creation, use generateNextReceiptNumberInTransaction instead.
+   */
+  async generateNextReceiptNumber(): Promise<string> {
+    return this.generateNextReceiptNumberInTransaction(this.prisma);
   }
 
   parseReceiptNumber(receiptNumber: string): { year: number; sequence: number } | null {

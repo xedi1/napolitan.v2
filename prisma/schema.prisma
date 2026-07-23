@@ -21,7 +21,8 @@ model User {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
-  orders    Order[]
+  orders         Order[]
+  refreshTokens  RefreshToken[]
 
   @@map("users")
 }
@@ -420,4 +421,31 @@ model RateLimit {
 
   @@unique([apiKeyId, windowStart])
   @@map("rate_limits")
+}
+
+// Refresh Token for authentication
+model RefreshToken {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String    // SHA-256 hash of the refresh token
+  family      String    // Token family for rotation tracking
+  expiresAt   DateTime
+  revokedAt   DateTime? // Null if active, set when revoked
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+// Atomic receipt number sequence
+model ReceiptSequence {
+  id        String   @id @default(uuid())
+  year      Int      @unique
+  sequence  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("receipt_sequences")
 }

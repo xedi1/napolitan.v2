@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException, Logger, ForbiddenException } from '@
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { UsersService } from '../../../modules/users/services/users.service';
-import { RedisService } from '../../../common/services/redis.service';
 import { TokenBlacklistService } from './token-blacklist.service';
+import { RefreshTokenService } from './refresh-token.service';
 import { RegisterDto, LoginDto } from '../dto/auth.dto';
 
 export interface JwtPayload {
@@ -38,7 +38,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService,
+    private readonly refreshTokenService: RefreshTokenService,
     private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
@@ -112,18 +112,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    // Verify refresh token hasn't been used before (reused detection)
-    const isValid = await this.redisService.isRefreshTokenValid(
-      payload.sub,
-      payload.family,
-      payload.jti,
-    );
+    // Verify refresh token exists in database and is valid
+    const storedToken = await this.refreshTokenService.validateToken(refreshToken);
 
-    if (!isValid) {
+    if (!storedToken) {
       // Token reuse detected! This is a potential attack
       // Invalidate entire token family to force logout everywhere
       this.logger.warn(`Refresh token reuse detected for user ${payload.sub}, family ${payload.family}`);
-      await this.tokenBlacklistService.invalidateTokenFamily(payload.sub, payload.family);
+      await this.refreshTokenService.revokeFamily(payload.family);
       throw new ForbiddenException('Token reuse detected. All sessions have been invalidated for security.');
     }
 
@@ -133,8 +129,8 @@ export class AuthService {
       throw new UnauthorizedException('User account is inactive or not found');
     }
 
-    // Invalidate the old refresh token (prevents reuse)
-    await this.redisService.invalidateRefreshToken(payload.sub, payload.family, payload.jti);
+    // Revoke the old refresh token (prevents reuse)
+    await this.refreshTokenService.revokeToken(refreshToken);
 
     // Generate new token pair with new refresh token
     const tokens = await this.generateTokensWithRotation(user.id, user.email, user.role, payload.family);
@@ -184,18 +180,13 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    // Store refresh token in Redis for rotation tracking
-    await this.redisService.storeRefreshToken(
+    // Store refresh token hash in database for rotation tracking
+    await this.refreshTokenService.createRefreshToken(
       userId,
+      refreshToken,
       tokenFamilyId,
-      refreshTokenId,
       this.REFRESH_TOKEN_TTL,
     );
-
-    // Store token family if new
-    if (!tokenFamily) {
-      await this.redisService.storeTokenFamily(userId, tokenFamilyId, this.REFRESH_TOKEN_TTL);
-    }
 
     return {
       accessToken,
@@ -219,8 +210,8 @@ export class AuthService {
     // Blacklist the access token
     await this.tokenBlacklistService.blacklistAccessToken(accessToken);
 
-    // Invalidate all refresh tokens for this user
-    await this.tokenBlacklistService.invalidateAllUserRefreshTokens(userId);
+    // Revoke all refresh tokens for this user in database
+    await this.refreshTokenService.revokeAllUserTokens(userId);
 
     this.logger.log(`User ${userId} logged out from all devices`);
   }
