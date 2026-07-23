@@ -34,69 +34,76 @@ export class ReceiptsService {
   ) {}
 
   async create(dto: CreateReceiptDto) {
-    // Verify order exists and is in SERVED status
-    const order = await this.prisma.order.findUnique({
-      where: { id: dto.orderId },
-      include: {
-        table: { select: { tableNumber: true } },
-        createdBy: { select: { firstName: true, lastName: true } },
-        items: {
-          include: { menuItem: { select: { name: true } } },
+    // Use atomic transaction to prevent race conditions
+    // The entire receipt creation (number generation + insert) happens in one transaction
+    const receipt = await this.prisma.$transaction(async (tx) => {
+      // Verify order exists and is in SERVED status
+      const order = await tx.order.findUnique({
+        where: { id: dto.orderId },
+        include: {
+          table: { select: { tableNumber: true } },
+          createdBy: { select: { firstName: true, lastName: true } },
+          items: {
+            include: { menuItem: { select: { name: true } } },
+          },
+          receipt: true,
         },
-        receipt: true,
-      },
-    });
+      });
 
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
 
-    if (order.receipt) {
-      throw new ConflictException('Receipt already exists for this order');
-    }
+      if (order.receipt) {
+        throw new ConflictException('Receipt already exists for this order');
+      }
 
-    if (order.status !== OrderStatus.SERVED) {
-      throw new BadRequestException(
-        `Order must be in SERVED status to create receipt. Current status: ${order.status}`,
-      );
-    }
+      if (order.status !== OrderStatus.SERVED) {
+        throw new BadRequestException(
+          `Order must be in SERVED status to create receipt. Current status: ${order.status}`,
+        );
+      }
 
-    // Generate unique receipt number
-    const receiptNumber = await this.receiptNumberService.generateNextReceiptNumber();
+      // Generate unique receipt number WITHIN this transaction
+      // This ensures the FOR UPDATE lock is held until receipt is inserted
+      const receiptNumber = await this.receiptNumberService.generateNextReceiptNumberInTransaction(tx);
 
-    // Generate QR code
-    const { url: receiptUrl, qrDataUrl } = await this.qrGeneratorService.generateReceiptQRCode(receiptNumber);
+      // Generate QR code
+      const { url: receiptUrl, qrDataUrl } = await this.qrGeneratorService.generateReceiptQRCode(receiptNumber);
 
-    // Create receipt
-    const receipt = await this.prisma.receipt.create({
-      data: {
-        receiptNumber,
-        orderId: dto.orderId,
-        totalAmount: order.totalAmount!,
-        paymentMethod: dto.paymentMethod,
-        receiptUrl,
-        qrCodeData: qrDataUrl,
-      },
-      include: {
-        order: {
-          include: {
-            table: { select: { tableNumber: true } },
-            createdBy: { select: { firstName: true, lastName: true } },
-            items: {
-              include: { menuItem: { select: { name: true } } },
+      // Create receipt in the same transaction
+      const newReceipt = await tx.receipt.create({
+        data: {
+          receiptNumber,
+          orderId: dto.orderId,
+          totalAmount: order.totalAmount!,
+          paymentMethod: dto.paymentMethod,
+          receiptUrl,
+          qrCodeData: qrDataUrl,
+        },
+        include: {
+          order: {
+            include: {
+              table: { select: { tableNumber: true } },
+              createdBy: { select: { firstName: true, lastName: true } },
+              items: {
+                include: { menuItem: { select: { name: true } } },
+              },
             },
           },
         },
-      },
+      });
+
+      // Update order status to PAID
+      await tx.order.update({
+        where: { id: dto.orderId },
+        data: { status: OrderStatus.PAID },
+      });
+
+      return newReceipt;
     });
 
-    // Update order status to PAID
-    await this.prisma.order.update({
-      where: { id: dto.orderId },
-      data: { status: OrderStatus.PAID },
-    });
-
-    // Emit payment.success event
+    // Emit payment.success event (outside transaction - fire and forget)
     const event: PaymentSuccessEvent = {
       receiptId: receipt.id,
       receiptNumber: receipt.receiptNumber,
