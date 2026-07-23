@@ -39,7 +39,50 @@
 - [x] فاز ۸: Automation & Integrations (✅ انجام شد)
 - [x] فاز ۹: Management Dashboard (✅ انجام شد)
 - [x] فاز ۱۰: Future-Ready Extensions (✅ انجام شد)
+- [x] فاز ۱۱: Testing, Security & Deployment (✅ انجام شد)
 - [ ] 🎉 پروژه کامل شد!
+
+---
+
+# Phase 11: Testing, Security & Deployment
+
+## Unit Tests
+- [x] Order State Machine tests
+- [x] Event Bus tests
+- [x] Crypto Service tests
+- [x] Input Validation tests
+
+## Integration Tests
+- [x] Order API tests
+- [x] Auth API tests
+- [x] Webhook Security tests
+
+## Security Hardening
+- [x] CORS middleware
+- [x] Input sanitization middleware
+- [x] Security headers
+- [x] Rate limiting (via @nestjs/throttler)
+
+## CI/CD Pipeline
+- [x] GitHub Actions workflow
+- [x] Lint & Type Check job
+- [x] Test job (Unit + Integration)
+- [x] Build job with Docker
+- [x] Security scanning (Trivy)
+- [x] E2E test job
+- [x] Staging/Production deployment
+
+## Docker
+- [x] Production Dockerfile (multi-stage)
+- [x] Admin Panel Dockerfile
+- [x] Docker Compose with health checks
+- [x] Nginx configuration
+
+## Deployment Documentation
+- [x] Deployment Guide
+- [x] Environment Variables
+- [x] Backup Strategy
+- [x] Troubleshooting Guide
 
 ---
 

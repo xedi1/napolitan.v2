@@ -1,0 +1,80 @@
+# Napolitan Restaurant API - Production Dockerfile
+# Multi-stage build for optimized production image
+
+# =============================================================================
+# Stage 1: Dependencies
+# =============================================================================
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# =============================================================================
+# Stage 2: Build
+# =============================================================================
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Install all dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
+COPY prisma ./prisma
+COPY tsconfig*.json ./
+COPY src ./src
+COPY nest-cli.json ./
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build application
+RUN npm run build
+
+# =============================================================================
+# Stage 3: Production
+# =============================================================================
+FROM node:20-alpine AS production
+
+# Add labels for better container management
+LABEL maintainer="Napolitan Team"
+LABEL description="Napolitan Restaurant Management API"
+LABEL version="1.0.0"
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy built application from build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy Prisma schema
+COPY --from=build /app/prisma ./prisma
+
+# Set ownership
+RUN chown -R nestjs:nodejs /app
+
+# Switch to non-root user
+USER nestjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Start application
+CMD ["node", "dist/main"]
