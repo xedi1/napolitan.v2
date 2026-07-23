@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PaymentMethod } from '@prisma/client';
 
 export interface OrderCreatedEvent {
   orderId: string;
@@ -21,6 +22,17 @@ export interface OrderStatusChangedEvent {
   updatedAt: Date;
 }
 
+export interface PaymentSuccessEvent {
+  receiptId: string;
+  receiptNumber: string;
+  orderId: string;
+  tableNumber: number;
+  totalAmount: number;
+  paymentMethod: PaymentMethod;
+  paidAt: Date;
+  receiptUrl: string;
+}
+
 @Injectable()
 export class EventBus {
   private readonly logger = new Logger(EventBus.name);
@@ -37,5 +49,12 @@ export class EventBus {
       `Emitting order.status_changed event for order ${event.orderId}: ${event.previousStatus} -> ${event.newStatus}`,
     );
     this.eventEmitter.emit('order.status_changed', event);
+  }
+
+  emitPaymentSuccess(event: PaymentSuccessEvent): void {
+    this.logger.debug(
+      `Emitting payment.success event for receipt ${event.receiptNumber} - $${event.totalAmount}`,
+    );
+    this.eventEmitter.emit('payment.success', event);
   }
 }

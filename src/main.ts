@@ -50,6 +50,7 @@ async function bootstrap() {
     .addTag('Tables', 'Table management')
     .addTag('Orders', 'Order management endpoints')
     .addTag('Kitchen', 'Kitchen display system endpoints')
+    .addTag('Receipts', 'Receipt and payment endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

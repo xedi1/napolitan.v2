@@ -102,6 +102,7 @@ model Order {
   updatedAt   DateTime    @updatedAt
 
   items       OrderItem[]
+  receipt     Receipt?
 
   @@map("orders")
 }
@@ -129,4 +130,29 @@ model OrderItem {
   createdAt   DateTime @default(now())
 
   @@map("order_items")
+}
+
+// Payment method enum
+enum PaymentMethod {
+  CASH
+  CARD
+  ONLINE
+}
+
+// Receipt model
+model Receipt {
+  id              String        @id @default(uuid())
+  receiptNumber   String        @unique // Format: NP-YYYY-NNNNN
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id])
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  paymentMethod   PaymentMethod
+  paidAt          DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+
+  // Online receipt link (optional)
+  receiptUrl      String?
+  qrCodeData      String?
+
+  @@map("receipts")
 }

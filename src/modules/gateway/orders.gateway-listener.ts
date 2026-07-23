@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EventBus, OrderCreatedEvent, OrderStatusChangedEvent } from '../events/event-bus';
+import { EventBus, OrderCreatedEvent, OrderStatusChangedEvent, PaymentSuccessEvent } from '../events/event-bus';
 import { OrdersGateway } from './orders.gateway';
 
 @Injectable()
@@ -87,5 +87,32 @@ export class OrdersGatewayListener implements OnModuleInit {
 
     // Dashboard listens for all status changes
     this.ordersGateway.broadcastToRoom('dashboard', 'order:status_changed', payload);
+  }
+
+  @OnEvent('payment.success')
+  handlePaymentSuccess(event: PaymentSuccessEvent) {
+    this.logger.log(
+      `Processing payment.success event for receipt ${event.receiptNumber}`,
+    );
+
+    const payload = {
+      type: 'payment:success',
+      data: {
+        receiptId: event.receiptId,
+        receiptNumber: event.receiptNumber,
+        orderId: event.orderId,
+        tableNumber: event.tableNumber,
+        totalAmount: event.totalAmount,
+        paymentMethod: event.paymentMethod,
+        paidAt: event.paidAt,
+        receiptUrl: event.receiptUrl,
+      },
+    };
+
+    // Broadcast to cashier
+    this.ordersGateway.broadcastToRoom('cashier', 'payment:success', payload);
+
+    // Broadcast to dashboard
+    this.ordersGateway.broadcastToRoom('dashboard', 'payment:success', payload);
   }
 }

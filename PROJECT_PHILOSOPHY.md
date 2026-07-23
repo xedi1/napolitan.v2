@@ -32,7 +32,44 @@
 - [x] فاز ۱: Authentication & Users Module (✅ انجام شد)
 - [x] فاز ۲: Menu & Table Management (✅ انجام شد)
 - [x] فاز ۳: Real-Time Order Management & Kitchen (✅ انجام شد)
-- [ ] فاز ۴: ...
+- [x] فاز ۴: Cashier & Custom Receipt System (✅ انجام شد)
+- [ ] فاز ۵: ...
+
+---
+
+# Phase 4: Cashier & Custom Receipt System
+
+## Receipt Model
+- **Format:** `NP-YYYY-NNNNN` (e.g., `NP-2026-00001251`)
+- **Fields:** receiptNumber, orderId, totalAmount, paymentMethod, paidAt, receiptUrl, qrCodeData
+
+## Payment Methods
+- `CASH` - Cash payment
+- `CARD` - Card payment
+- `ONLINE` - Online payment
+
+## Receipts Module (`/api/v1/receipts`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| POST | /receipts | Create receipt for served order | ADMIN, MANAGER, STAFF |
+| GET | /receipts | List all receipts | ADMIN, MANAGER, STAFF |
+| GET | /receipts/by-number/:receiptNumber | Get by receipt number | ADMIN, MANAGER, STAFF |
+| GET | /receipts/:id | Get receipt by ID | ADMIN, MANAGER, STAFF |
+| GET | /receipts/:id/pdf | Download receipt PDF | ADMIN, MANAGER, STAFF |
+| GET | /receipts/:id/qr | Get QR code | ADMIN, MANAGER, STAFF |
+
+## Services
+- **ReceiptNumberService:** Generates unique sequential IDs with `FOR UPDATE` locking
+- **PdfGeneratorService:** Generates printable PDF receipts
+- **QrGeneratorService:** Generates QR codes linking to online receipts
+
+## Event Bus Events
+- `payment.success` - Broadcasts to cashier and dashboard on successful payment
+
+## Acceptance Criteria
+- ✅ Each receipt has a unique, non-repeating ID
+- ✅ Old receipts can be reprinted using their ID
+- ✅ QR code points to correct online link
 
 ---
 
