@@ -4,7 +4,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: napolitan-api
     ports:
       - '${APP_PORT:-3000}:3000'
@@ -23,9 +23,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    volumes:
-      - ./src:/app/src:ro
-      - /app/node_modules
     networks:
       - napolitan-network
     restart: unless-stopped

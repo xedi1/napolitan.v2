@@ -138,7 +138,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t napolitan-api:${{ github.sha }} -f docker/Dockerfile .
+          docker build -t napolitan-api:${{ github.sha }} -f Dockerfile .
           docker tag napolitan-api:${{ github.sha }} napolitan-api:latest
 
       - name: Run Trivy vulnerability scanner
