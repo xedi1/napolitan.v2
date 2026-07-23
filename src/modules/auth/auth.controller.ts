@@ -5,9 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Request } from 'express';
 import { AuthService } from './services/auth.service';
 import { RegisterDto, LoginDto, RefreshTokenDto } from './dto/auth.dto';
 import { Public } from './decorators/public.decorator';
@@ -50,6 +53,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
+  @ApiResponse({ status: 403, description: 'Token reuse detected' })
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refreshToken);
   }
@@ -59,11 +63,18 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Logout current user' })
+  @ApiOperation({ summary: 'Logout current user (invalidates all tokens)' })
   @ApiResponse({ status: 204, description: 'Logout successful' })
-  async logout(@CurrentUser() user: { id: string; email: string }) {
-    // For JWT, logout is handled client-side by removing the token
-    // Server-side token invalidation would require a blacklist/revocation system
-    return;
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async logout(
+    @CurrentUser() user: { id: string; email: string },
+    @Req() req: Request,
+  ) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    const accessToken = authHeader.substring(7);
+    await this.authService.logout(accessToken, user.id);
   }
 }
