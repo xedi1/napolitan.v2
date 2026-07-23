@@ -265,3 +265,71 @@ model MenuItemSales {
   @@unique([menuItemId, date])
   @@map("menu_item_sales")
 }
+
+// Notification type enum
+enum NotificationType {
+  ORDER_NEW
+  ORDER_STATUS_CHANGED
+  PAYMENT_SUCCESS
+  INVENTORY_LOW_STOCK
+  RECEIPT_ISSUED
+  SYSTEM_ALERT
+}
+
+// Notification recipient type
+enum NotificationRecipient {
+  ALL
+  KITCHEN
+  CASHIER
+  MANAGER
+  ADMIN
+}
+
+// Notification model
+model Notification {
+  id          String               @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String
+  recipient   NotificationRecipient @default(ALL)
+  metadata    Json?                // Additional event data
+  isRead      Boolean             @default(false)
+  readAt      DateTime?
+  userId      String?             // Optional: specific user
+  createdAt   DateTime            @default(now())
+
+  @@map("notifications")
+}
+
+// Audit log action type
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PAYMENT
+  ORDER_CREATE
+  ORDER_UPDATE
+}
+
+// Audit log model
+model AuditLog {
+  id         String       @id @default(uuid())
+  event      String       // Event name
+  action     AuditAction
+  entityType String?      // e.g., "Order", "Receipt", "User"
+  entityId   String?      // ID of the affected entity
+  userId     String?      // User who performed the action
+  userEmail  String?     // User email at time of action
+  ipAddress  String?
+  userAgent  String?
+  metadata    Json?       // Additional event data
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

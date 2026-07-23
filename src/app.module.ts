@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 import { validateEnv } from './config/configuration';
 import { PrismaService } from './common/services/prisma.service';
 import { HealthModule } from './modules/health/health.module';
@@ -17,8 +18,9 @@ import { ReceiptsModule } from './modules/receipts/receipts.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { ReportsModule } from './modules/reports/reports.module';
-import { GatewayModule } from './modules/gateway/gateway.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { GatewayModule } from './modules/gateway/gateway.module';
 import { throttlerConfig } from './config/throttler.config';
 
 @Module({
@@ -28,6 +30,12 @@ import { throttlerConfig } from './config/throttler.config';
       validate: validateEnv,
     }),
     EventEmitterModule.forRoot(),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      },
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -49,8 +57,9 @@ import { throttlerConfig } from './config/throttler.config';
     InventoryModule,
     EmployeesModule,
     ReportsModule,
-    GatewayModule,
     NotificationsModule,
+    AuditLogModule,
+    GatewayModule,
   ],
   providers: [PrismaService],
 })

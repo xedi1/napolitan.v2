@@ -35,7 +35,70 @@
 - [x] فاز ۴: Cashier & Custom Receipt System (✅ انجام شد)
 - [x] فاز ۵: Inventory & Employee Management (✅ انجام شد)
 - [x] فاز ۶: Reports & Analytics (✅ انجام شد)
-- [ ] فاز ۷: ...
+- [x] فاز ۷: Notifications & Full Event-Driven Architecture (✅ انجام شد)
+- [ ] فاز ۸: ...
+
+---
+
+# Phase 7: Notifications & Event-Driven Architecture
+
+## Event Catalog
+
+### Order Events
+| Event | Payload | Listeners |
+|-------|---------|-----------|
+| `order.created` | orderId, tableNumber, items, createdBy | Kitchen, Analytics, Notifications, AuditLog |
+| `order.status_changed` | orderId, previousStatus, newStatus, tableNumber | Kitchen, Notifications, AuditLog |
+
+### Payment Events
+| Event | Payload | Listeners |
+|-------|---------|-----------|
+| `payment.success` | receiptId, receiptNumber, orderId, totalAmount, paymentMethod | Dashboard, Analytics, Notifications, AuditLog |
+| `receipt.issued` | receiptId, receiptNumber, totalAmount | Notifications, AuditLog |
+
+### Inventory Events
+| Event | Payload | Listeners |
+|-------|---------|-----------|
+| `inventory.low_stock` | items[], timestamp | Dashboard, Notifications, AuditLog |
+
+### Dashboard Events
+| Event | Payload | Listeners |
+|-------|---------|-----------|
+| `dashboard.update` | type, data | Dashboard WebSocket |
+
+## Notification Types
+- ORDER_NEW, ORDER_STATUS_CHANGED, PAYMENT_SUCCESS
+- INVENTORY_LOW_STOCK, RECEIPT_ISSUED, SYSTEM_ALERT
+
+## Notification Recipients
+- ALL, KITCHEN, CASHIER, MANAGER, ADMIN
+
+## Audit Log Actions
+- CREATE, UPDATE, DELETE, LOGIN, LOGOUT, PAYMENT
+- ORDER_CREATE, ORDER_UPDATE
+
+## Endpoints
+### Notifications (`/api/v1/notifications`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /notifications | List all |
+| GET | /notifications/unread | Unread only |
+| GET | /notifications/unread/count | Unread count |
+| PATCH | /notifications/:id/read | Mark as read |
+| PATCH | /notifications/read-all | Mark all as read |
+
+### Audit Logs (`/api/v1/logs`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /logs | List with filters |
+| GET | /logs/recent | Recent logs |
+| GET | /logs/entity/:type/:id | Entity history |
+| GET | /logs/user/:userId | User activity |
+
+## Acceptance Criteria
+- ✅ All modules communicate through Event Bus
+- ✅ All key events are recorded in Audit Log
+- ✅ BullMQ integration ready for Redis
 
 ---
 

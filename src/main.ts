@@ -54,6 +54,8 @@ async function bootstrap() {
     .addTag('Inventory', 'Inventory and recipe management')
     .addTag('Employees', 'Employee management')
     .addTag('Reports', 'Reports and analytics endpoints')
+    .addTag('Notifications', 'Notification endpoints')
+    .addTag('Audit Logs', 'System audit log endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
