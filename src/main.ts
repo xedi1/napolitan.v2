@@ -48,6 +48,8 @@ async function bootstrap() {
     .addTag('Categories', 'Menu category management')
     .addTag('Menu', 'Menu item management')
     .addTag('Tables', 'Table management')
+    .addTag('Orders', 'Order management endpoints')
+    .addTag('Kitchen', 'Kitchen display system endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

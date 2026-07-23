@@ -31,7 +31,61 @@
 - [x] فاز ۰: راه‌اندازی زیرساخت پروژه (✅ انجام شد)
 - [x] فاز ۱: Authentication & Users Module (✅ انجام شد)
 - [x] فاز ۲: Menu & Table Management (✅ انجام شد)
-- [ ] فاز ۳: ...
+- [x] فاز ۳: Real-Time Order Management & Kitchen (✅ انجام شد)
+- [ ] فاز ۴: ...
+
+---
+
+# Phase 3: Real-Time Order Management & Kitchen
+
+## Order State Machine
+```
+pending → confirmed → preparing → ready → served → paid
+                ↘ cancelled
+```
+
+## Orders Module (`/api/v1/orders`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /orders | List all orders | ADMIN, MANAGER, STAFF, KITCHEN |
+| GET | /orders/:id | Get order by ID | ADMIN, MANAGER, STAFF, KITCHEN |
+| POST | /orders | Create new order | ADMIN, MANAGER, STAFF |
+| PATCH | /orders/:id | Update order notes | ADMIN, MANAGER, STAFF |
+| PATCH | /orders/:id/status | Update order status | ADMIN, MANAGER, STAFF, KITCHEN |
+| DELETE | /orders/:id | Delete order | ADMIN |
+
+## Kitchen Module (`/api/v1/kitchen`)
+| Method | Endpoint | Description | Roles |
+|--------|----------|-------------|-------|
+| GET | /kitchen/orders | Get active kitchen orders | ADMIN, MANAGER, KITCHEN |
+| PATCH | /kitchen/orders/:id/confirm | Confirm pending order | ADMIN, MANAGER, KITCHEN |
+| PATCH | /kitchen/orders/:id/start | Start preparing | ADMIN, MANAGER, KITCHEN |
+| PATCH | /kitchen/orders/:id/ready | Mark as ready | ADMIN, MANAGER, KITCHEN |
+| PATCH | /kitchen/orders/:id/cancel | Cancel order | ADMIN, MANAGER, KITCHEN |
+
+## WebSocket Gateway (`/orders`)
+### Rooms: `kitchen`, `cashier`, `dashboard`
+
+### Events:
+| Event | Room | Description |
+|-------|------|-------------|
+| `order:new` | kitchen, cashier, dashboard | New order created |
+| `order:status_changed` | kitchen | Order confirmed/preparing/ready/cancelled |
+| `order:status_changed` | cashier | Order ready/served/paid/cancelled |
+| `order:status_changed` | dashboard | All status changes |
+
+### Client Events:
+- `joinRoom` - Join a room (kitchen/cashier/dashboard)
+- `leaveRoom` - Leave a room
+
+## Event Bus Events
+- `order.created` - Internal event when order is created
+- `order.status_changed` - Internal event when order status changes
+
+## Acceptance Criteria
+- ✅ New order appears on kitchen display without refresh
+- ✅ Status change by kitchen is immediately visible at cashier
+- ✅ Latency between event and client receive is under 1 second
 
 ---
 
