@@ -52,14 +52,34 @@
 | POST | /users | Create user | Yes | ADMIN |
 | GET | /users | List all users | Yes | ADMIN, MANAGER |
 | GET | /users/:id | Get user by ID | Yes | ADMIN, MANAGER |
-| PUT | /users/:id | Update user | Yes | ADMIN |
+| PATCH | /users/:id | Update user | Yes | ADMIN |
 | DELETE | /users/:id | Delete user (soft) | Yes | ADMIN |
+
+### Roles Module (`/api/v1/roles`)
+| Method | Endpoint | Description | Auth Required | Roles |
+|--------|----------|-------------|---------------|-------|
+| GET | /roles | Get all roles | Yes | ADMIN, MANAGER |
 
 ### User Roles
 - `ADMIN` - Full system access
 - `MANAGER` - Manage staff and view reports
 - `STAFF` - Regular staff member
 - `KITCHEN` - Kitchen staff access
+
+### Security Features
+- JWT Access Token (15 minutes)
+- JWT Refresh Token (7 days)
+- Password hashing with bcrypt
+- Role-Based Access Control (RBAC)
+- Rate Limiting:
+  - Login: 5 attempts/minute
+  - Register: 3 attempts/minute
+  - Other endpoints: 100 requests/minute
+
+### Unit Tests
+- 12 unit tests for Auth module (all passing)
+  - AuthService: login, register, refreshToken
+  - AuthController: login, register, refresh, logout
 
 ---
 
