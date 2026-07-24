@@ -3,8 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { validateEnv } from './config/configuration';
-import { PrismaService } from './common/services/prisma.service';
-import { RedisModule } from './common/redis.module';
+import { CommonModule } from './common/redis.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -37,7 +36,7 @@ import { throttlerConfig } from './config/throttler.config';
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
-    RedisModule,
+    CommonModule,
     ...throttlerConfig,
     HealthModule,
     AuthModule,
@@ -57,6 +56,5 @@ import { throttlerConfig } from './config/throttler.config';
     IntegrationsModule,
     GatewayModule,
   ],
-  providers: [PrismaService],
 })
 export class AppModule {}
