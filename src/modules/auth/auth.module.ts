@@ -33,6 +33,6 @@ import { RolesGuard } from './guards/roles.guard';
       useClass: RolesGuard,
     },
   ],
-  exports: [AuthService, TokenBlacklistService, RefreshTokenService],
+  exports: [AuthService, TokenBlacklistService, RefreshTokenService, JwtModule],
 })
 export class AuthModule {}

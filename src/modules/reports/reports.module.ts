@@ -7,8 +7,10 @@ import { DashboardEventListener } from './services/dashboard-listener.service';
 import { PrismaService } from '../../common/services/prisma.service';
 import { EventBus } from '../events/event-bus';
 import { OrdersGateway } from '../gateway/orders.gateway';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [ReportsController],
   providers: [
     ReportsService,
